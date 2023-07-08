@@ -6,6 +6,7 @@ import { IoCopyOutline } from "react-icons/io5";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { a11yLight } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import toast from "react-hot-toast";
+import { GetColorName } from 'hex-color-to-color-name';
 
 export default function Home() {
   const [textValue, setTextValue] = useState<string>("");
@@ -65,8 +66,7 @@ export default function Home() {
       
       const colorValue = `0xff${colorName}`; // Prepend '0xff' to the hex code
       
-      const formattedColorName = colorName
-        .replace(/\b\w/g, (match) => match.toUpperCase()); // Capitalize the first letter of each word
+      const formattedColorName = GetColorName(colorName) // Capitalize the first letter of each word
       
       return `static Color get ${formattedColorName} => const Color(${colorValue});`;
     });
@@ -112,6 +112,19 @@ export default function Home() {
               Image Text
             </label>
           </div>
+          <div>
+            <input
+              type="radio"
+              id="colorText"
+              name="inputOption"
+              value="color"
+              checked={selectedOption === "color"}
+              onChange={() => setSelectedOption("color")}
+            />
+            <label htmlFor="imageText" className="ml-2">
+              Color Text
+            </label>
+          </div>
         </div>
 
         {selectedOption === "normal" ? (
@@ -137,12 +150,13 @@ export default function Home() {
             onChange={(e) => setImageTextValue(e.target.value)}
           ></textarea>
         ) : (
-          <input
-            type="text"
-            name="colorHex"
-            id="colorHex"
-            placeholder="Enter the color hex code..."
-            className="border p-3 w-[100%] rounded"
+          <textarea
+          name="variaName"
+          id="varName"
+          cols={100}
+          rows={10}
+          placeholder="Enter the image text here to generate Variable..."
+          className="border p-3 w-[100%] rounded"
             value={colorHexValue}
             onChange={(e) => setColorHexValue(e.target.value)}
           />
