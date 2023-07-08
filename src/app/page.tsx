@@ -8,6 +8,7 @@ import { a11yLight } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import toast from "react-hot-toast";
 import { GetColorName } from 'hex-color-to-color-name';
 
+
 export default function Home() {
   const [textValue, setTextValue] = useState<string>("");
   const [imageTextValue, setImageTextValue] = useState<string>("");
@@ -16,10 +17,11 @@ export default function Home() {
   const [varArr, setVarArr] = useState<string[]>([]);
   const [copied, setCopied] = useState<boolean>(false);
   const [selectedOption, setSelectedOption] = useState<string>("normal");
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
 
   const generateVariables = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const stringArr = selectedOption === "normal" ? textValue.trim().split("\n") : selectedOption === "image" ? imageTextValue.trim().split("\n") : [colorHexValue.trim()];
+    const stringArr = selectedOption === "normal" ? textValue.trim().split("\n") : selectedOption === "image" ? imageTextValue.trim().split("\n") : colorHexValue.trim().split("\n");
 
     const modifiedArr = stringArr.map((ele) => {
       const modifiedEle = ele.replace(/&/g, 'and');
@@ -61,13 +63,12 @@ export default function Home() {
     const modifiedColor = stringArr.map((ele) => {
       const modifiedEle = ele.replace(/&/g, 'and');
       const colorName = modifiedEle
-        .replace(/[^a-fA-F0-9]/g, '') // Remove any non-hex characters
-        .toLowerCase(); // Convert to lowercase
+        .replace(/[^a-fA-F0-9]/g, '') 
+        .toLowerCase(); 
       
-      const colorValue = `0xff${colorName}`; // Prepend '0xff' to the hex code
+      const colorValue = `0xff${colorName}`; 
       
-      const formattedColorName = GetColorName(colorName) // Capitalize the first letter of each word
-      
+      const formattedColorName = GetColorName(colorName)
       return `static Color get ${formattedColorName} => const Color(${colorValue});`;
     });
 
@@ -81,10 +82,22 @@ export default function Home() {
     setColorHexValue("");
     setVarArr([]);
   };
+  const toggleDarkMode = () => {
+    setIsDarkMode(prevMode => !prevMode);
+  };
 
   return (
-    <div className="container mx-auto m-3 p-4">
+  <div className={`container mx-auto m-3 p-4`}>
       <form onSubmit={generateVariables}>
+      <div className="flex justify-between items-center">
+      <div className="h-12 text-2xl font-bold">
+        Stackers, convert your content to variables in 1 click!
+      </div>
+      <a href="https://webstatic.stackfinance.co/website/Group%2073740.svg" target="_blank" rel="noopener noreferrer">
+        <img src="https://webstatic.stackfinance.co/website/Group%2073740.svg" alt="Logo" className="w-50 h-50" />
+      </a>
+    </div>
+    <br />
         <div className="flex gap-3 mb-5">
           <div>
             <input
@@ -122,7 +135,7 @@ export default function Home() {
               onChange={() => setSelectedOption("color")}
             />
             <label htmlFor="imageText" className="ml-2">
-              Color Text
+              Hex to Color Name
             </label>
           </div>
         </div>
@@ -155,7 +168,7 @@ export default function Home() {
           id="varName"
           cols={100}
           rows={10}
-          placeholder="Enter the image text here to generate Variable..."
+          placeholder="Enter the color HEX here to generate Variable..."
           className="border p-3 w-[100%] rounded"
             value={colorHexValue}
             onChange={(e) => setColorHexValue(e.target.value)}
@@ -182,16 +195,12 @@ export default function Home() {
       </form>
 
       {/* Mapping the variables */}
-
+      <br />
       {varArr.length > 0 ? (
-        <div className="flex flex-row  py-5 gap-5">
-          <div className="flex flex-col gap-3 w-[50%]">
-          </div>
-
           <div className="relative rounded border w-[100%] flex flex-col ">
             <CopyToClipboard
               text={entireData}
-             onCopy={() => toast.success("Copied Successfully")}
+            onCopy={() => toast.success("Copied Successfully")}
             >
               <div className="bg-blue-500 text-white p-2 rounded cursor-pointer hover:scale-95 transition-all duration-200 hover:bg-blue-400 w-fit m-2 self-end group">
                 <IoCopyOutline size={20} />
@@ -207,10 +216,10 @@ export default function Home() {
               </SyntaxHighlighter>
             </div>
           </div>
-        </div>
       ) : (
         <></>
       )}
+
     </div>
   );
 }
