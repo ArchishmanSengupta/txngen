@@ -24,22 +24,31 @@ export default function Home() {
     const stringArr = selectedOption === "normal" ? textValue.trim().split("\n") : selectedOption === "image" ? imageTextValue.trim().split("\n") : colorHexValue.trim().split("\n");
 
     const modifiedArr = stringArr.map((ele) => {
+      const isNumber = /^\d+\s+\w+/.test(ele); 
+      if (isNumber) {
+        const [number, word] = ele.split(' ');
+        const escapedEle = ele.replace(/'/g, "\\'");
+        return `static const ${word.replace(/\W/g, '_')} = '${escapedEle}';`;
+      }
+    
       const modifiedEle = ele.replace(/&/g, 'and');
       const words = modifiedEle
-        .replaceAll(/[^a-zA-Z ]/g, '')
+        .replaceAll(/[^a-zA-Z0-9 ]/g, '')
         .toLowerCase()
         .split(' ');
-      
+    
       const firstWord = words[0];
       const otherWords = words.slice(1, 4)
         .map((val) => val[0].toUpperCase() + val.slice(1));
-      
+    
       const joinedWords = [firstWord, ...otherWords].join('');
     
       const escapedEle = ele.replace(/'/g, "\\'");
     
       return `static const ${joinedWords} = '${escapedEle}';`;
     });
+    
+    
 
     const modifiedImage = stringArr.map((ele) => {
       const modifiedEle = ele.replace(/&/g, 'and');
@@ -68,8 +77,15 @@ export default function Home() {
       
       const colorValue = `0xff${colorName}`; 
       
-      const formattedColorName = GetColorName(colorName)
-      return `static Color get ${formattedColorName} => const Color(${colorValue});`;
+      const formattedColorName = GetColorName(colorName);  
+      const newFormattedColorName = formattedColorName.split(' ');  
+      const firstWord = newFormattedColorName[0].toLowerCase();
+      const otherWords = newFormattedColorName.slice(1, 4)
+        .map((val: string | any[]) => val[0].toUpperCase() + val.slice(1));
+    
+      const joinedWords = [firstWord, ...otherWords].join('');
+    
+      return `static Color get ${joinedWords} => const Color(${colorValue});`;
     });
 
     setVarArr(selectedOption === "normal" ? modifiedArr : selectedOption === "image" ? modifiedImage : modifiedColor);
