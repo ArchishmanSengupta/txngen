@@ -43,7 +43,7 @@ export default function Home() {
       }
     
       if (words.length >= 2) {
-        otherWords = words.slice(1, 3)
+        otherWords = words.slice(1, 4)
           .map((val) => val[0].toUpperCase() + val.slice(1))
           .join('');
       }
@@ -57,18 +57,19 @@ export default function Home() {
     
     
     
-
+    // Generating variables for image filenames
     const modifiedImage = stringArr.map((ele) => {
       // Extracting the file extension
       const extensionIndex = ele.lastIndexOf('.');
       const extension = ele.slice(extensionIndex);
-    
+      
       // Removing the file extension from the string
       const nameWithoutExtension = ele.slice(0, extensionIndex);
-    
+      
+      // Modifying the filename: replacing '&' with 'and' and converting to camelCase
       const modifiedEle = nameWithoutExtension.replace(/&/g, 'and');
       const words = modifiedEle
-        .split(/[_-]/)
+        .split(/[_-\s]/) // Include space as a delimiter
         .map((word, index) => {
           if (index === 0) {
             return word.charAt(0).toLowerCase() + word.slice(1);
@@ -77,14 +78,16 @@ export default function Home() {
           }
         })
         .join('');
-    
+      
       // Combining the modified name with the extension
       const modifiedFileName = `${words}${extension}`;
-      const escapedEle = modifiedFileName.replace(/'/g, "\\'");
-    
-      return `static final ${words} = '\${AppEnvironment.s3ImgUrl}${escapedEle}';`;
+      
+      const namingEle = ele +'.png';
+      
+      // Generating the static variable string with the modified filename
+      return `static final ${words} = '\${AppEnvironment.s3ImgUrl}${namingEle}';`;
     });
-    
+
     const totalVariablesGenerated = stringArr.length;
 
     const modifiedColor = stringArr.map((ele) => {
@@ -116,15 +119,16 @@ export default function Home() {
     setColorHexValue("");
     setVarArr([]);
   };
+  
   return (
   <div className={`container mx-auto m-3 p-4`}>
       <form onSubmit={generateVariables}>
       <div className="flex justify-between items-center">
       <div className="h-12 text-2xl font-bold">
-        Stackers, convert your content to variables in 1 click!
+        Stack Frontend devs, convert your content to variables in 1 Abra-cadabra-click!
       </div>
-      <a href="https://webstatic.stackfinance.co/website/Group%2073740.svg" target="_blank" rel="noopener noreferrer">
-        <img src="https://webstatic.stackfinance.co/website/Group%2073740.svg" alt="Logo" className="w-50 h-50" />
+      <a href="https://www.stackwealth.in" target="_blank" rel="noopener noreferrer">
+        <img src="https://webstatic.stackfinance.co/website-v4/stack-logo.webp" alt="Logo" className="w-50 h-50" />
       </a>
     </div>
     <br />
@@ -210,7 +214,7 @@ export default function Home() {
             className="bg-green-600 px-10 py-3 rounded text-white hover:bg-green-500 transition-all duration-200 hover:scale-95 font-medium hover:font-normal shadow hover:shadow-none"
             type="submit"
           >
-            Generate String Variables
+            abra cadabra
           </button>
 
           <button
