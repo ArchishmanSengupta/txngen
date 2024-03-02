@@ -1,12 +1,12 @@
 "use client";
 
+import { GetColorName } from 'hex-color-to-color-name';
 import { useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
+import toast from "react-hot-toast";
 import { IoCopyOutline } from "react-icons/io5";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { a11yLight } from "react-syntax-highlighter/dist/esm/styles/hljs";
-import toast from "react-hot-toast";
-import { GetColorName } from 'hex-color-to-color-name';
 
 
 export default function Home() {
@@ -15,9 +15,7 @@ export default function Home() {
   const [colorHexValue, setColorHexValue] = useState<string>("");
   const [entireData, setEntireData] = useState<string>("");
   const [varArr, setVarArr] = useState<string[]>([]);
-  const [copied, setCopied] = useState<boolean>(false);
   const [selectedOption, setSelectedOption] = useState<string>("normal");
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
 
   const generateVariables = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -37,11 +35,20 @@ export default function Home() {
         .toLowerCase()
         .split(' ');
     
-      const firstWord = words[0];
-      const otherWords = words.slice(1, 4)
-        .map((val) => val[0].toUpperCase() + val.slice(1));
+      let firstWord = '';
+      let otherWords = '';
     
-      const joinedWords = [firstWord, ...otherWords].join('');
+      if (words.length >= 1) {
+        firstWord = words[0];
+      }
+    
+      if (words.length >= 2) {
+        otherWords = words.slice(1, 3)
+          .map((val) => val[0].toUpperCase() + val.slice(1))
+          .join('');
+      }
+    
+      const joinedWords = [firstWord, otherWords].join('');
     
       const escapedEle = ele.replace(/'/g, "\\'");
     
@@ -49,11 +56,19 @@ export default function Home() {
     });
     
     
+    
 
     const modifiedImage = stringArr.map((ele) => {
-      const modifiedEle = ele.replace(/&/g, 'and');
+      // Extracting the file extension
+      const extensionIndex = ele.lastIndexOf('.');
+      const extension = ele.slice(extensionIndex);
+    
+      // Removing the file extension from the string
+      const nameWithoutExtension = ele.slice(0, extensionIndex);
+    
+      const modifiedEle = nameWithoutExtension.replace(/&/g, 'and');
       const words = modifiedEle
-        .split('-')
+        .split(/[_-]/)
         .map((word, index) => {
           if (index === 0) {
             return word.charAt(0).toLowerCase() + word.slice(1);
@@ -63,11 +78,14 @@ export default function Home() {
         })
         .join('');
     
-      const escapedEle = ele.replace(/'/g, "\\'");
+      // Combining the modified name with the extension
+      const modifiedFileName = `${words}${extension}`;
+      const escapedEle = modifiedFileName.replace(/'/g, "\\'");
     
-      return `static final ${words} = '\${AppEnvironment.s3ImgUrl}${escapedEle}.png';`;
+      return `static final ${words} = '\${AppEnvironment.s3ImgUrl}${escapedEle}';`;
     });
     
+    const totalVariablesGenerated = stringArr.length;
 
     const modifiedColor = stringArr.map((ele) => {
       const modifiedEle = ele.replace(/&/g, 'and');
@@ -98,10 +116,6 @@ export default function Home() {
     setColorHexValue("");
     setVarArr([]);
   };
-  const toggleDarkMode = () => {
-    setIsDarkMode(prevMode => !prevMode);
-  };
-
   return (
   <div className={`container mx-auto m-3 p-4`}>
       <form onSubmit={generateVariables}>
