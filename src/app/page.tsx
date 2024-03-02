@@ -8,7 +8,6 @@ import { IoCopyOutline } from "react-icons/io5";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { a11yLight } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
-
 export default function Home() {
   const [textValue, setTextValue] = useState<string>("");
   const [imageTextValue, setImageTextValue] = useState<string>("");
@@ -19,7 +18,9 @@ export default function Home() {
 
   const generateVariables = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const stringArr = selectedOption === "normal" ? textValue.trim().split("\n") : selectedOption === "image" ? imageTextValue.trim().split("\n") : colorHexValue.trim().split("\n");
+    const stringArr = selectedOption === "normal" ? textValue.split("\n").map(ele => ele.trim()) :
+                      selectedOption === "image" ? imageTextValue.split("\n").map(ele => ele.trim()) :
+                      colorHexValue.split("\n").map(ele => ele.trim());
 
     const modifiedArr = stringArr.map((ele) => {
       const isNumber = /^\d+\s+\w+/.test(ele); 
@@ -55,21 +56,15 @@ export default function Home() {
       return `static const ${joinedWords} = '${escapedEle}';`;
     });
     
-    
-    
-    // Generating variables for image filenames
     const modifiedImage = stringArr.map((ele) => {
-      // Extracting the file extension
       const extensionIndex = ele.lastIndexOf('.');
       const extension = ele.slice(extensionIndex);
       
-      // Removing the file extension from the string
       const nameWithoutExtension = ele.slice(0, extensionIndex);
       
-      // Modifying the filename: replacing '&' with 'and' and converting to camelCase
       const modifiedEle = nameWithoutExtension.replace(/&/g, 'and');
       const words = modifiedEle
-        .split(/[_-\s]/) // Include space as a delimiter
+        .split(/[_-\s]/)
         .map((word, index) => {
           if (index === 0) {
             return word.charAt(0).toLowerCase() + word.slice(1);
@@ -79,12 +74,10 @@ export default function Home() {
         })
         .join('');
       
-      // Combining the modified name with the extension
       const modifiedFileName = `${words}${extension}`;
       
       const namingEle = ele +'.png';
       
-      // Generating the static variable string with the modified filename
       return `static final ${words} = '\${AppEnvironment.s3ImgUrl}${namingEle}';`;
     });
 
